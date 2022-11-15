@@ -1,0 +1,7 @@
+pandas
+selenium
+bs4
+lxml
+openpyxl
+webdriver-manager
+packaging
