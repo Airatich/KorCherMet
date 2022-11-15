@@ -16,7 +16,7 @@ options.add_argument('--start-maximized')
 
 # options.add_argument("--headless")
 
-options.add_argument("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36")
+options.add_argument("")
 
 s=Service(ChromeDriverManager().install())
 driver = webdriver.Chrome(service=s, options=options)
