@@ -1,2 +1,2 @@
-login_data="mechel"
-password_data="wsxijnty"
+login_data=""
+password_data=""
