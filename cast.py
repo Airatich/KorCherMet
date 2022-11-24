@@ -8,15 +8,15 @@ import re
 from selenium.webdriver.chrome.service import Service
 import pandas as pd
 from webdriver_manager.chrome import ChromeDriverManager
-import auth_data
+import settings
 
 url="http://www.k-chermet.ru/index.php?option=com_content&view=article&id=45&Itemid=63"
 options=webdriver.ChromeOptions()
 options.add_argument('--start-maximized')
 
-# options.add_argument("--headless")
+options.add_argument("--headless")
 
-options.add_argument("")
+options.add_argument("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36")
 
 s=Service(ChromeDriverManager().install())
 driver = webdriver.Chrome(service=s, options=options)
@@ -25,11 +25,11 @@ def auth():
     driver.get(url)
     input_login = driver.find_element(By.XPATH,
                                       "/html/body/div/div[3]/div/div/div[1]/div/div/div/div/div/div/form/p/input[1]")
-    input_login.send_keys(auth_data.login_data)
+    input_login.send_keys(settings.login_data)
 
     input_password = driver.find_element(By.XPATH,
                                          "/html/body/div/div[3]/div/div/div[1]/div/div/div/div/div/div/form/p/input[2]")
-    input_password.send_keys(auth_data.password_data)
+    input_password.send_keys(settings.password_data)
     input_password.send_keys(Keys.RETURN)
 
 
@@ -127,43 +127,26 @@ def clicker_to_end(XPATH_CHECKBOX,tr,tb):
 def to_excel(month_inp,year):
     try:
         source = driver.page_source
-
         source_table = bs4.BeautifulSoup(source, 'lxml')
-        # print(source_table)
-        ## table = soup.find("table") !!!!!!!!!!!!!!!!!!!
-        ## print(soup)
-        ## print(type(table))
         source_table = str(source_table)
         soup = bs4.BeautifulSoup(source_table, "lxml")
         data = pd.read_html(str(soup))
         data = data[0]
-        data.to_excel(f'Чугун {month_inp.zfill(2)}.{year}.xlsx', index=False)
-        table = pd.read_excel(f'Чугун {month_inp.zfill(2)}.{year}.xlsx', sheet_name='Sheet1', header=0, skiprows=17)
+        data.to_excel(f'{settings.path_to_project}/Готовые excel/Чугун {month_inp.zfill(2)}.{year}.xlsx', index=False)
+        table = pd.read_excel(f'{settings.path_to_project}/Готовые excel/Чугун {month_inp.zfill(2)}.{year}.xlsx', sheet_name='Sheet1', header=0, skiprows=17)
         table.dropna(axis=0, how="all", inplace=True)
-        table.drop(table.index[[14,16,15]], axis=0, inplace=True)
         table.drop(table.columns[[0]], axis=1, inplace=True)
-
-        table.to_excel(f'Чугун {month_inp.zfill(2)}.{year}.xlsx', index=False)
-
-        # source_table=str(source_table)
-        # soup = bs4.BeautifulSoup(source_table, "lxml")
-        # data = pd.read_html(str(soup))
-        # data = data[0]
-        # data.to_excel('test_2.xlsx', index=False)
-        # table = pd.read_excel('test_2.xlsx', sheet_name='Sheet1', header=0)
-        # table.dropna(axis=0, how='all', inplace=True)
-        # table.drop(table.columns[[0]], axis=1, inplace=True)
-        # table.drop(table.index[[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]], axis=0, inplace=True)
-        # table.to_excel(f'Чугун {month_inp.zfill(2)}.{year}.xlsx', index=False)
+        table.to_excel(f'{settings.path_to_project}/Готовые excel/Чугун {month_inp.zfill(2)}.{year}.xlsx',
+                       index=False)
     except:
         print("problem with unloading :(")
 
+def exit():
+    driver.find_element(By.XPATH,"/html/body/table/tbody/tr[4]/td/table/tbody/tr/td[2]/a").click() ## выход из системы
 
-try:
+def main_cast_iron(year, month_inp):
     months = {1: 'Январь', 2: 'Февраль', 3: 'Март', 4: 'Апрель', 5: 'Май', 6: 'Июнь', 7: 'Июль', 8: 'Август',
               9: 'Сентябрь', 10: 'Октябрь', 11: 'Ноябрь', 12: 'Декабрь'}
-    year, month_inp = (input("Введите год и номер месяцa, с которого выгружаем (через пробел)\n")).split()
-    start_time = time.time()
     month = months[int(month_inp)].lower()
     auth()
     clicker_to_list()
@@ -176,6 +159,6 @@ try:
     driver.find_element(By.XPATH,"/html/body/table/tbody/tr[5]/td/table[2]/tbody/tr[2]/td/table[1]/tbody/tr/td[1]/table/tbody/tr[8]/td/table/tbody/tr[1]/td/table/tbody/tr[6]/td[3]/input").click()
     driver.find_element(By.XPATH,"/html/body/table/tbody/tr[5]/td/table[2]/tbody/tr[2]/td/table[1]/tbody/tr/td[1]/table/tbody/tr[8]/td/table/tbody/tr[4]/td/input[1]").click()
     to_excel(month_inp,year)
-    print(f"fine!!!\nTotal execution time: {time.time() - start_time} sec")
-except Exception:
-     print(Exception)
+    exit()
+    print(f"Чугун {month_inp.zfill(2)}.{year} - лежит в папке 'Готовые excel'")
+
